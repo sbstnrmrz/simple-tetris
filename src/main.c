@@ -1,5 +1,6 @@
 #include "defs.h"
 #include "game.h"
+#include "ui.h"
 
 struct {
     u64 frames;
@@ -7,6 +8,8 @@ struct {
     SDL_Window *window;
     SDL_Renderer *renderer;
 } engine;
+
+Box *box = NULL;
 
 void init_sdl(const char *title, int win_width, int win_height, bool fullscreen) {
     engine.running = false;
@@ -48,12 +51,16 @@ void update() {
 
     engine.frames++;
 //    printf("%llu\n", SDL_GetTicks64());  
+//    lorem ipsum asdasdjnzcnzjxnjnv
+//
+//
 }
 
 void render() {
     SDL_SetRenderDrawColor(engine.renderer, 0, 0, 0, 255);
     SDL_RenderClear(engine.renderer);
 
+    render_box(engine.renderer);
     render_board(engine.renderer);
     render_tetromino(engine.renderer);
 
@@ -82,6 +89,7 @@ int main(int argc, char *argv[]) {
 
     init_sdl("TETRIS", WIN_WIDTH, WIN_HEIGHT, false);
     init_game();
+    box = new_box(WIN_WIDTH/2, WIN_HEIGHT/2, 50, 50, 0);
     engine.frames = 1;
 
     while(engine.running) {
