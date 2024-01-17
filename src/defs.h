@@ -9,11 +9,11 @@
 #include <math.h>
 #include <SDL3/SDL.h>
 
+#define PI atan2f(1, 1) * 4
+
 #define CELL_SIZE 32
 #define WIN_WIDTH  10 * CELL_SIZE
 #define WIN_HEIGHT 20 * CELL_SIZE
-
-#define PI atan2f(1, 1) * 4
 
 #define RED    (SDL_Color) {255, 0, 0, 255}
 #define GREEN  (SDL_Color) {0, 255, 0, 255}
@@ -33,5 +33,15 @@ typedef uint32_t u32;
 typedef uint64_t u64;
 typedef float    f32;
 typedef double   f64;
+
+typedef struct {
+    i32 x;
+    i32 y;
+} vec2d_t;
+
+typedef struct {
+    f32 x;
+    f32 y;
+} vecf2d_t;
 
 #endif // DEFS_h

@@ -96,7 +96,6 @@ Tetromino gen_mino() {
 }
 
 int check_mino_colission() {
-
     for (size_t i = 0; i < 4; i++) {
         for (size_t j = 0; j < 4; j++) {
             if ((mino.pos[i].x + mino.off.x)-1 < 0 || int_board[mino.pos[i].y+mino.off.y][(mino.pos[j].x + mino.off.x)-1] > 0) {
@@ -118,7 +117,7 @@ int check_mino_colission() {
 
 bool check_place_mino() {
     for (size_t i = 0; i < 4; i++) {
-        if (int_board[(mino.pos[i].y + mino.off.y)+1][mino.pos[i].x + mino.off.x] > 0 || mino.pos[i].y+mino.off.y >= ROWS-1) {
+        if (int_board[(mino.pos[i].y + mino.off.y)+1][mino.pos[i].x + mino.off.x] > 0 || (mino.pos[i].y + mino.off.y) >= ROWS-1) {
             return true;
         }
     }
@@ -136,8 +135,8 @@ void place_mino() {
 }
 
 int rotate_mino(u8 dir) {
-    int rows = 0;
-    int cols = 0;
+    i32 rows = 0;
+    i32 cols = 0;
 
     if (mino.shape > 2) {
         rows = cols = 3;
@@ -172,7 +171,7 @@ int rotate_mino(u8 dir) {
     }
 
     Tetromino temp_mino;
-    int check = 0;
+//    int check = 0;
     size_t cnt = 0;
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
@@ -242,7 +241,7 @@ void input(SDL_Event event) {
             if (event.key.keysym.sym == SDLK_z) {
                 rotate_mino(2);
             }
-            if (event.key.keysym.sym == SDLK_x) {
+            if (event.key.keysym.sym == SDLK_x || event.key.keysym.sym == SDLK_UP) {
                 rotate_mino(1);
             }
             if (event.key.keysym.sym == SDLK_UP) {

@@ -17,11 +17,6 @@ typedef enum {
 } shape_t;
 
 typedef struct {
-    i32 x;
-    i32 y;
-} vec2d_t;
-
-typedef struct {
     vec2d_t pos[4];
     vec2d_t off;
     shape_t shape;

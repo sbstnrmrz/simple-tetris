@@ -5,6 +5,7 @@
 struct {
     u64 frames;
     bool running;   
+    Mouse mouse;
     SDL_Window *window;
     SDL_Renderer *renderer;
 } engine;
@@ -41,6 +42,7 @@ void handle_events() {
     if (event.type == SDL_EVENT_QUIT) {
         engine.running = false;
     }
+    mouse_input(event, &engine.mouse);
     input(event);
 
 }
@@ -70,10 +72,9 @@ void render() {
 
 void debug() {
     debug_board();
-    printf("\n");
     debug_mino();
-    printf("\n");
     debug_bag();
+    mouse_info(engine.mouse);
 
 }
 
