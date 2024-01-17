@@ -36,6 +36,7 @@ void fill_bag();
 int check_mino_colission();
 bool check_place_mino();
 void place_mino();
+int check_rotation();
 int rotate_mino(u8 dir);
 int clear_lines();
 void update_board();
@@ -45,8 +46,6 @@ void render_tetromino(SDL_Renderer *renderer);
 void debug_board();
 void debug_mino();
 void debug_bag(); 
-void print_matrix(int *arr, size_t rows, size_t cols); 
-void init_matrix(int arr[][3], size_t rows, size_t cols);
 void swap(int *a, int *b);
 
 #endif // GAME_H

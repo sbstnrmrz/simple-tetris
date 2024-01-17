@@ -73,20 +73,20 @@ void reset_board() {
 
 Tetromino gen_mino() {
     if (bagEmpty) {
-        size_t counter = 0;
+        size_t cnt = 0;
 
-        while (counter < 7) {
+        while (cnt < 7) {
             bool repeat = false; 
-            bag[counter] = rand() % 7;
-            for (size_t i = 0; i < counter; i++) {
-                if (bag[counter] == bag[i] && i != counter) {
+            bag[cnt] = rand() % 7;
+            for (size_t i = 0; i < cnt; i++) {
+                if (bag[cnt] == bag[i] && i != cnt) {
                     repeat = true;
                 }
             } 
             if (repeat) {
                 continue;
             } else {
-                counter++;
+                cnt++;
             }
         }
         bagEmpty = false;
@@ -100,11 +100,11 @@ int check_mino_colission() {
     for (size_t i = 0; i < 4; i++) {
         for (size_t j = 0; j < 4; j++) {
             if ((mino.pos[i].x + mino.off.x)-1 < 0 || int_board[mino.pos[i].y+mino.off.y][(mino.pos[j].x + mino.off.x)-1] > 0) {
-                printf("collision: %d\n", 1);
+//                printf("collision: %d\n", 1);
                 return 1;
             }
             if ((mino.pos[i].x + mino.off.x)+1 > COLS-1 || int_board[mino.pos[i].y+mino.off.y][(mino.pos[j].x + mino.off.x)+1] > 0) {
-                printf("collision: %d\n", 2);
+//                printf("collision: %d\n", 2);
                 return 2;
             }
             if (int_board[mino.pos[i].y+mino.off.y][mino.pos[j].x+mino.off.x+1] > 0 && int_board[mino.pos[i].y + mino.off.y][mino.pos[j].x + mino.off.x-1] > 0) {
@@ -170,16 +170,41 @@ int rotate_mino(u8 dir) {
             }
         }
     }
+
+    Tetromino temp_mino;
+    int check = 0;
     size_t cnt = 0;
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
             if (arr[i][j] == 1) {
-                mino.pos[cnt].x = j;
-                mino.pos[cnt].y = i; 
+                temp_mino.pos[cnt].x = j;
+                temp_mino.pos[cnt].y = i; 
                 cnt++;
             }
         }
     }
+    for (i32 i = 0; i < 4; i++) {
+        if (int_board[temp_mino.pos[i].y + mino.off.y][temp_mino.pos[i].x + mino.off.x]) {
+            return 1;
+        }
+    }
+    for (i32 i = 0; i < 4; i++) {
+        mino.pos[i].x = temp_mino.pos[i].x;
+        mino.pos[i].y = temp_mino.pos[i].y;
+    }
+
+//  if (check == 1) {
+//      size_t cnt = 0;
+//      for (size_t i = 0; i < rows; i++) {
+//          for (size_t j = 0; j < cols; j++) {
+//              if (arr[i][j] == 1) {
+//                  mino.pos[cnt].x = j;
+//                  mino.pos[cnt].y = i; 
+//                  cnt++;
+//              }
+//          }
+//      }
+//  }
 
     return 0;
 }
@@ -206,7 +231,6 @@ int clear_lines() {
                 }
             }
         }
-
     }
 
     return 0;
@@ -258,7 +282,6 @@ void render_board(SDL_Renderer *renderer) {
 
     for (size_t i = 0; i < ROWS; i++) {
         for (size_t j = 0; j < COLS; j++) {
-
             //TODO
             if (int_board[i][j] > 0) {
                 for (size_t k = 0; k < 7; k++) {
@@ -271,7 +294,6 @@ void render_board(SDL_Renderer *renderer) {
                             shapes[k].color.a);
                     }
                 }
-
                 SDL_FRect cell = {
                     .x = board.x + j * CELL_SIZE,              
                     .y = board.y + i * CELL_SIZE,
@@ -307,9 +329,7 @@ void update_tetromino(u64 frames) {
                 mino.off.y++;
             }
         }
-
     }
-    
         
 }
 
@@ -373,25 +393,6 @@ void debug_bag() {
         printf("BAG: %d\n", bag[i]);    
     }
     printf("BAGPOS: %zu\n\n", bag_pos);
-
-}
-
-void init_matrix(int arr[][3], size_t rows, size_t cols) {
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
-            arr[i][j] = 0;
-        }
-    }
-}
-
-void print_matrix(i32 *arr, size_t rows, size_t cols) {
-    for (size_t i = 0; i < rows; i++) {
-        printf("|");
-        for (size_t j = 0; j < cols; j++) {
-//            printf("%d|", arr[i][j]);
-        }
-        printf("\n");
-    }
 
 }
 
