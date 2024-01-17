@@ -12,8 +12,8 @@
 #define PI atan2f(1, 1) * 4
 
 #define CELL_SIZE 32
-#define WIN_WIDTH  10 * CELL_SIZE
-#define WIN_HEIGHT 20 * CELL_SIZE
+#define WIN_WIDTH  1280//10 * CELL_SIZE
+#define WIN_HEIGHT 720//20 * CELL_SIZE
 
 #define RED    (SDL_Color) {255, 0, 0, 255}
 #define GREEN  (SDL_Color) {0, 255, 0, 255}
@@ -22,6 +22,8 @@
 #define YELLOW (SDL_Color) {255, 255, 0, 255}
 #define ORANGE (SDL_Color) {255, 80, 0, 255}
 #define PURPLE (SDL_Color) {255, 0, 255, 255}
+#define WHITE  (SDL_Color) {255, 255, 255, 255}
+#define BLACK  (SDL_Color) {0, 0, 0, 255}
 
 typedef int8_t   i8;
 typedef int16_t  i16;

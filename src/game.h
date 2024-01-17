@@ -37,6 +37,7 @@ int clear_lines();
 void update_board();
 void update_tetromino(u64 frames);
 void render_board(SDL_Renderer *renderer);
+void render_mino_prev(SDL_Renderer *renderer);
 void render_tetromino(SDL_Renderer *renderer);
 void debug_board();
 void debug_mino();

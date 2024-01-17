@@ -31,7 +31,8 @@ const float level[30] = {800.0f,      // LEVEL 0  FRAMES 48
                          33.333333f,  // LEVEL 27 FRAMES 2
                          33.333333f,  // LEVEL 28 FRAMES 2
                          16.666666f}; // LEVEL 29 FRAMES 1
-                                      
+
+/*
 const Tetromino shapes[7] = {{{ {0,1}, {1,1}, {2,1}, {3,1} }, {0,0}, I, CYAN},
                               {1,1, 2,1, 1,2, 2,2, 0,0, O, YELLOW},
                               {1,0, 0,1, 1,1, 2,1, 0,0, T, PURPLE},
@@ -39,6 +40,15 @@ const Tetromino shapes[7] = {{{ {0,1}, {1,1}, {2,1}, {3,1} }, {0,0}, I, CYAN},
                               {0,0, 1,0, 1,1, 2,1, 0,0, Z, RED},
                               {1,0, 1,1, 0,2, 1,2, 0,0, J, BLUE},
                               {0,0, 0,1, 0,2, 1,2, 0,0, L, ORANGE}};
+*/
+
+const Tetromino shapes[7] = {{{ {0,1}, {1,1}, {2,1}, {3,1} }, {0,0}, I, CYAN},
+                              {1,1, 2,1, 1,2, 2,2, 0,0, O, YELLOW},
+                              {1,0, 0,1, 1,1, 2,1, 0,0, T, PURPLE},
+                              {1,0, 2,0, 0,1, 1,1, 0,0, S, GREEN},
+                              {0,0, 1,0, 1,1, 2,1, 0,0, Z, RED},
+                              {0,1, 0,2, 1,2, 2,2, 0,0, J, BLUE},
+                              {2,1, 0,2, 1,2, 2,2, 0,0, L, ORANGE}};
 
 char      char_board[ROWS][COLS] = {0};
 u8        int_board[ROWS][COLS] = {0};
@@ -54,6 +64,12 @@ SDL_FRect board = {
     .y = WIN_HEIGHT / 2 - (CELL_SIZE * 20) / 2,
     .w = CELL_SIZE * 10,
     .h = CELL_SIZE * 20};
+
+SDL_FRect mino_prev = {
+    .x = WIN_WIDTH / 2 + WIN_WIDTH / 8,               
+    .y = WIN_HEIGHT / 2 - (CELL_SIZE * 20) / 2,
+    .w = CELL_SIZE * 4,
+    .h = CELL_SIZE * 4};
 
 int init_game() {
     reset_board();
@@ -276,9 +292,8 @@ void update_board() {
 }
 
 void render_board(SDL_Renderer *renderer) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
     SDL_RenderRect(renderer, &board);
-
     for (size_t i = 0; i < ROWS; i++) {
         for (size_t j = 0; j < COLS; j++) {
             //TODO
@@ -303,6 +318,32 @@ void render_board(SDL_Renderer *renderer) {
                 SDL_RenderRect(renderer, &cell);
             }
         }
+    }
+
+}
+
+void render_mino_prev(SDL_Renderer *renderer) {
+    SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+    SDL_RenderRect(renderer, &mino_prev);
+
+    for(size_t i = 0; i < 4; i++) {
+        SDL_FRect cell = {
+            .x = shapes[bag[bag_pos+1]].pos[i].x * CELL_SIZE + mino_prev.x,              
+            .y = (shapes[bag[bag_pos+1]].pos[i].y) * CELL_SIZE + mino_prev.y,
+//          .x = shapes[mino.shape-1].pos[i].x * CELL_SIZE + mino_prev.x,              
+//          .y = (shapes[mino.shape-1].pos[i].y) * CELL_SIZE + mino_prev.y,
+            .w = CELL_SIZE,
+            .h = CELL_SIZE};
+        SDL_SetRenderDrawColor(renderer, shapes[bag[bag_pos+1]].color.r,
+                                         shapes[bag[bag_pos+1]].color.g,  
+                                         shapes[bag[bag_pos+1]].color.b,  
+                                         shapes[bag[bag_pos+1]].color.a);
+//      SDL_SetRenderDrawColor(renderer, shapes[mino.shape-1].color.r,
+//                                       shapes[mino.shape-1].color.g,  
+//                                       shapes[mino.shape-1].color.b,  
+//                                       shapes[mino.shape-1].color.a);
+        SDL_RenderFillRect(renderer, &cell);
+        SDL_RenderRect(renderer, &cell);
     }
 
 }
@@ -375,6 +416,7 @@ void debug_board() {
 
 void debug_mino() {
     printf("[TETROMINO INFO]\n\n"); 
+    printf("Shape: %d\n", mino.shape);
     printf("X : Y\n");
     printf("%d, %d\toff\n", mino.off.x, mino.off.y);
 

@@ -53,9 +53,6 @@ void update() {
 
     engine.frames++;
 //    printf("%llu\n", SDL_GetTicks64());  
-//    lorem ipsum asdasdjnzcnzjxnjnv
-//
-//
 }
 
 void render() {
@@ -64,6 +61,7 @@ void render() {
 
     render_box(engine.renderer);
     render_board(engine.renderer);
+    render_mino_prev(engine.renderer);
     render_tetromino(engine.renderer);
 
     SDL_RenderPresent(engine.renderer);
@@ -90,7 +88,7 @@ int main(int argc, char *argv[]) {
 
     init_sdl("TETRIS", WIN_WIDTH, WIN_HEIGHT, false);
     init_game();
-    box = new_box(WIN_WIDTH/2, WIN_HEIGHT/2, 50, 50, 0);
+//    box = new_box(WIN_WIDTH/2, WIN_HEIGHT/2, 50, 50, 0);
     engine.frames = 1;
 
     while(engine.running) {
