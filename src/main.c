@@ -43,7 +43,7 @@ void handle_events() {
         engine.running = false;
     }
     mouse_input(event, &engine.mouse);
-    input(event);
+    game_input(event);
 
 }
 

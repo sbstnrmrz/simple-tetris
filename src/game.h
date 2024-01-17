@@ -25,7 +25,7 @@ typedef struct {
 
 int init_game();
 void reset_board();
-void input(SDL_Event event);
+void game_input(SDL_Event event);
 Tetromino gen_mino();
 void fill_bag();
 int check_mino_colission();

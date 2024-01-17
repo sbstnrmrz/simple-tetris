@@ -235,7 +235,7 @@ int clear_lines() {
     return 0;
 }
 
-void input(SDL_Event event) {
+void game_input(SDL_Event event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         if (!pause) {
             if (event.key.keysym.sym == SDLK_z) {
