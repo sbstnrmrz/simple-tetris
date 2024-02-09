@@ -1,6 +1,4 @@
 #include "ui.h"
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_mouse.h"
 
 Box box_arr[10];
 static size_t box_arr_size = 0;
@@ -50,9 +48,11 @@ int mouse_input(SDL_Event event, Mouse *mouse) {
             mouse->button |= MB_LEFT_CLICK;
         }
         mouse->state = M_PRESSED;
+        return 1;
     } else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
         mouse->button = 0;
         mouse->state = 0;
+        return 2;
     }
 
     return 0;

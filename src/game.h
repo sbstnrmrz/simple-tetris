@@ -5,6 +5,8 @@
 
 #define ROWS 20
 #define COLS 10
+#define BOARD_WIDTH (COLS * CELL_SIZE)
+#define BOARD_HEIGHT (ROWS * CELL_SIZE)
 
 typedef enum {
     I = 1,
@@ -37,6 +39,7 @@ int clear_lines();
 void update_board();
 void update_tetromino(u64 frames);
 void render_board(SDL_Renderer *renderer);
+void render_bag_prev(SDL_Renderer *renderer);
 void render_mino_prev(SDL_Renderer *renderer);
 void render_tetromino(SDL_Renderer *renderer);
 void debug_board();

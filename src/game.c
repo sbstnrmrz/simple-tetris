@@ -1,5 +1,7 @@
 #include "game.h"
+#include "SDL3/SDL_render.h"
 #include "defs.h"
+#include <stdint.h>
 
 const float level[30] = {800.0f,      // LEVEL 0  FRAMES 48 
                          716.666666f, // LEVEL 1  FRAMES 43
@@ -55,19 +57,19 @@ u8        int_board[ROWS][COLS] = {0};
 Tetromino mino = {0};
 u8        bag[7] = {0};
 size_t    bag_pos = 0;
-bool minoExist = false;
-bool bagEmpty = true;
+bool mino_exist = false;
+bool bag_empty = true;
 bool pause = false;
 
 SDL_FRect board = {
-    .x = WIN_WIDTH / 2 - (CELL_SIZE * 10) / 2,               
-    .y = WIN_HEIGHT / 2 - (CELL_SIZE * 20) / 2,
-    .w = CELL_SIZE * 10,
-    .h = CELL_SIZE * 20};
+    .x = (f32)WIN_WIDTH/2 - (f32)(BOARD_WIDTH)/2,               
+    .y = (f32)WIN_HEIGHT/2 - (f32)(BOARD_HEIGHT)/2,
+    .w = BOARD_WIDTH,
+    .h = BOARD_HEIGHT};
 
 SDL_FRect mino_prev = {
-    .x = WIN_WIDTH / 2 + WIN_WIDTH / 8,               
-    .y = WIN_HEIGHT / 2 - (CELL_SIZE * 20) / 2,
+    .x = (f32)WIN_WIDTH / 2 + (f32)WIN_WIDTH / 8,               
+    .y = (f32)WIN_HEIGHT / 2 - (f32)(BOARD_HEIGHT) / 2,
     .w = CELL_SIZE * 4,
     .h = CELL_SIZE * 4};
 
@@ -88,7 +90,7 @@ void reset_board() {
 }
 
 Tetromino gen_mino() {
-    if (bagEmpty) {
+    if (bag_empty) {
         size_t cnt = 0;
 
         while (cnt < 7) {
@@ -105,7 +107,7 @@ Tetromino gen_mino() {
                 cnt++;
             }
         }
-        bagEmpty = false;
+        bag_empty = false;
     }
 
     return shapes[bag[bag_pos]];
@@ -146,13 +148,13 @@ void place_mino() {
         int_board[mino.pos[i].y+mino.off.y][mino.pos[i].x+mino.off.x] = mino.shape;
     }
     bag_pos++;
-    minoExist = false;
+    mino_exist = false;
     
 }
 
 int rotate_mino(u8 dir) {
-    i32 rows = 0;
-    i32 cols = 0;
+    u8 rows = 0;
+    u8 cols = 0;
 
     if (mino.shape > 2) {
         rows = cols = 3;
@@ -225,10 +227,10 @@ int rotate_mino(u8 dir) {
 }
 
 int clear_lines() {
-    i32 line = 0;
+    i8 line = 0;
 
-    for (i32 i = ROWS-1; i >= 0; i--) {
-        for (i32 j = 0; j < COLS; j++) {
+    for (i8 i = ROWS-1; i >= 0; i--) {
+        for (i8 j = 0; j < COLS; j++) {
             if (int_board[i][j] < 1) {
                 line = 0;
                 break;
@@ -237,11 +239,11 @@ int clear_lines() {
             }
         }
         if (line >= 10) {
-            for (i32 k = 0; k < COLS; k++) {
+            for (i8 k = 0; k < COLS; k++) {
                 int_board[i][k] = 0;
             }
-            for (i32 l = i; l > 0; l--) {
-                for (i32 k = 0; k < COLS; k++) {
+            for (i8 l = i; l > 0; l--) {
+                for (i8 k = 0; k < COLS; k++) {
                     int_board[l][k] = int_board[l-1][k];
                 }
             }
@@ -300,12 +302,11 @@ void render_board(SDL_Renderer *renderer) {
             if (int_board[i][j] > 0) {
                 for (size_t k = 0; k < 7; k++) {
                     if (int_board[i][j] == shapes[k].shape) {
-                        SDL_SetRenderDrawColor(
-                            renderer, 
-                            shapes[k].color.r, 
-                            shapes[k].color.g, 
-                            shapes[k].color.b, 
-                            shapes[k].color.a);
+                        SDL_SetRenderDrawColor(renderer, 
+                                               shapes[k].color.r, 
+                                               shapes[k].color.g, 
+                                               shapes[k].color.b, 
+                                               shapes[k].color.a);
                     }
                 }
                 SDL_FRect cell = {
@@ -323,6 +324,44 @@ void render_board(SDL_Renderer *renderer) {
 }
 
 void render_mino_prev(SDL_Renderer *renderer) {
+//  i32 max_pos = 0;
+//  i32 min_pos = INT8_MAX;
+
+//  for (i32 i = 0; i < 4; i++) {
+//      if (mino.pos[i].x+mino.off.x <= min_pos) {
+//          min_pos = mino.pos[i].x + mino.off.x;
+//      } 
+//      if (mino.pos[i].x+mino.off.x >= max_pos) {
+//          max_pos = mino.pos[i].x + mino.off.x;
+//      } 
+//  }
+    i32 prev_off = ROWS;
+
+    for (i32 i = 0; i < 4; i++) {
+        while(mino.pos[i].y + prev_off > ROWS-1) {
+            prev_off--;
+        }
+    }
+    for (i32 i = 0; i < 4; i++) {
+        if (int_board[mino.pos[i].y+prev_off][mino.pos[i].x+mino.off.x] > 0) {
+            prev_off--;
+        }
+    }
+
+    for (i32 i = 0; i < 4; i++) {
+        SDL_FRect cell = {
+            .x = board.x + (mino.off.x+mino.pos[i].x) * CELL_SIZE,
+            .y = board.y + (mino.pos[i].y + prev_off) * CELL_SIZE,
+            .w = CELL_SIZE,
+            .h = CELL_SIZE,
+        }; 
+        SDL_SetRenderDrawColor(renderer, mino.color.r, mino.color.g, mino.color.b, mino.color.a);
+        SDL_RenderRect(renderer, &cell);
+        
+    }
+}
+
+void render_bag_prev(SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
     SDL_RenderRect(renderer, &mino_prev);
 
@@ -330,18 +369,13 @@ void render_mino_prev(SDL_Renderer *renderer) {
         SDL_FRect cell = {
             .x = shapes[bag[bag_pos+1]].pos[i].x * CELL_SIZE + mino_prev.x,              
             .y = (shapes[bag[bag_pos+1]].pos[i].y) * CELL_SIZE + mino_prev.y,
-//          .x = shapes[mino.shape-1].pos[i].x * CELL_SIZE + mino_prev.x,              
-//          .y = (shapes[mino.shape-1].pos[i].y) * CELL_SIZE + mino_prev.y,
             .w = CELL_SIZE,
             .h = CELL_SIZE};
-        SDL_SetRenderDrawColor(renderer, shapes[bag[bag_pos+1]].color.r,
-                                         shapes[bag[bag_pos+1]].color.g,  
-                                         shapes[bag[bag_pos+1]].color.b,  
-                                         shapes[bag[bag_pos+1]].color.a);
-//      SDL_SetRenderDrawColor(renderer, shapes[mino.shape-1].color.r,
-//                                       shapes[mino.shape-1].color.g,  
-//                                       shapes[mino.shape-1].color.b,  
-//                                       shapes[mino.shape-1].color.a);
+        SDL_SetRenderDrawColor(renderer, 
+                               shapes[bag[bag_pos+1]].color.r,
+                               shapes[bag[bag_pos+1]].color.g,  
+                               shapes[bag[bag_pos+1]].color.b,  
+                               shapes[bag[bag_pos+1]].color.a);
         SDL_RenderFillRect(renderer, &cell);
         SDL_RenderRect(renderer, &cell);
     }
@@ -352,14 +386,14 @@ void update_tetromino(u64 frames) {
     if (!pause) {
         if (bag_pos >= 7) {
             bag_pos = 0;
-            bagEmpty = true;
+            bag_empty = true;
         }
 
-        if (!minoExist) {
+        if (!mino_exist) {
             mino = gen_mino();
             mino.off.x = 3;
             mino.off.y = 0;
-            minoExist = true;
+            mino_exist = true;
         }
         
         if (frames % 12 == 0) {
@@ -374,12 +408,11 @@ void update_tetromino(u64 frames) {
 }
 
 void render_tetromino(SDL_Renderer *renderer) {
-    SDL_SetRenderDrawColor(
-        renderer, 
-        mino.color.r, 
-        mino.color.g, 
-        mino.color.b, 
-        mino.color.a);
+    SDL_SetRenderDrawColor(renderer, 
+                           mino.color.r, 
+                           mino.color.g, 
+                           mino.color.b, 
+                           mino.color.a);
     
     for (size_t i = 0; i < 4; i++) {
         SDL_FRect cell = {
@@ -396,7 +429,6 @@ void render_tetromino(SDL_Renderer *renderer) {
 
 void debug_board() {
     printf("[BOARD INFO]\n\n");
-
     for (size_t i = 0; i < ROWS; i++) {
         printf("|");
         for (size_t j = 0; j < COLS; j++) {
