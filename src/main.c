@@ -10,8 +10,6 @@ struct {
     SDL_Renderer *renderer;
 } engine;
 
-Box *box = NULL;
-
 void init_sdl(const char *title, int win_width, int win_height, bool fullscreen) {
     engine.running = false;
 
@@ -59,7 +57,6 @@ void render() {
     SDL_SetRenderDrawColor(engine.renderer, 0, 0, 0, 255);
     SDL_RenderClear(engine.renderer);
 
-//    render_box(engine.renderer);
     render_board(engine.renderer);
     render_bag_prev(engine.renderer);
     render_tetromino(engine.renderer);
@@ -70,9 +67,9 @@ void render() {
 }
 
 void debug() {
-    debug_board();
-    debug_mino();
-    debug_bag();
+    board_info();
+    mino_info();
+    bag_info();
     mouse_info(engine.mouse);
 
 }
@@ -89,7 +86,6 @@ int main(int argc, char *argv[]) {
 
     init_sdl("TETRIS", WIN_WIDTH, WIN_HEIGHT, false);
     init_game();
-//    box = new_box(WIN_WIDTH/2, WIN_HEIGHT/2, 50, 50, 0);
     engine.frames = 0;
 
     while(engine.running) {

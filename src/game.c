@@ -1,7 +1,5 @@
 #include "game.h"
-#include "SDL3/SDL_render.h"
 #include "defs.h"
-#include <stdint.h>
 
 const float level[30] = {800.0f,      // LEVEL 0  FRAMES 48 
                          716.666666f, // LEVEL 1  FRAMES 43
@@ -427,7 +425,7 @@ void render_tetromino(SDL_Renderer *renderer) {
 
 }
 
-void debug_board() {
+void board_info() {
     printf("[BOARD INFO]\n\n");
     for (size_t i = 0; i < ROWS; i++) {
         printf("|");
@@ -446,7 +444,7 @@ void debug_board() {
 
 }
 
-void debug_mino() {
+void mino_info() {
     printf("[TETROMINO INFO]\n\n"); 
     printf("Shape: %d\n", mino.shape);
     printf("X : Y\n");
@@ -459,7 +457,7 @@ void debug_mino() {
 
 }
 
-void debug_bag() {
+void bag_info() {
     printf("[BAG INFO]\n");
 
     for (size_t i = 0; i < 7; i++) {

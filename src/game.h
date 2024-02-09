@@ -42,9 +42,9 @@ void render_board(SDL_Renderer *renderer);
 void render_bag_prev(SDL_Renderer *renderer);
 void render_mino_prev(SDL_Renderer *renderer);
 void render_tetromino(SDL_Renderer *renderer);
-void debug_board();
-void debug_mino();
-void debug_bag(); 
+void board_info();
+void mino_info();
+void bag_info(); 
 void swap(int *a, int *b);
 
 #endif // GAME_H
