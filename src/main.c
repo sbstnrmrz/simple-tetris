@@ -13,7 +13,7 @@ struct {
 void init_sdl(const char *title, int win_width, int win_height, bool fullscreen) {
     engine.running = false;
 
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+    if (SDL_Init(SDL_INIT_EVENTS) < 0) {
         fprintf(stderr, "Failed to initialize SDL. SDL_Error: %s\n", SDL_GetError());
         exit(1);
     }

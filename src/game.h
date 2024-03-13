@@ -16,12 +16,12 @@ typedef enum {
     Z = 5,
     J = 6,
     L = 7
-} shape_t;
+} shape;
 
 typedef struct {
-    vec2d_t pos[4];
-    vec2d_t off;
-    shape_t shape;
+    vec2d_t   pos[4];
+    vec2d_t   off;
+    shape     shape;
     SDL_Color color;
 } Tetromino;
 
@@ -34,6 +34,7 @@ int check_mino_colission();
 bool check_place_mino();
 void place_mino();
 int check_rotation();
+void _check_mino_colission(u8 dir);
 int rotate_mino(u8 dir);
 int clear_lines();
 void update_board();
