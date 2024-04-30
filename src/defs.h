@@ -39,13 +39,11 @@ typedef double   f64;
 typedef struct {
     i32 x;
     i32 y;
-} vec2d_t;
+} vec2;
 
 typedef struct {
     f32 x;
     f32 y;
-} vecf2d_t;
-
-
+} vec2f;
 
 #endif // DEFS_h

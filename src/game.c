@@ -80,7 +80,6 @@ int init_game() {
 void reset_board() {
     for (size_t i = 0; i < ROWS; i++) {
         for (size_t j = 0; j < COLS; j++) {
-//            charBoard[i][j] = '.';
             int_board[i][j] = 0;
         }
     }
@@ -110,30 +109,7 @@ Tetromino gen_mino() {
     return shapes[bag[bag_pos]];
 }
 
-int check_mino_colission() {
-    u32 result = 0;
-    for (size_t i = 0; i < 4; i++) {
-        for (size_t j = 0; j < 4; j++) {
-            if ((mino.pos[i].x + mino.off.x)-1 < 0 || int_board[mino.pos[i].y+mino.off.y][(mino.pos[j].x + mino.off.x)-1] > 0) {
-//                printf("collision: %d\n", 1);
-                result |= 1;
-            }
-            if (int_board[mino.pos[i].y+mino.off.y][mino.pos[j].x+mino.off.x+1] > 0 && int_board[mino.pos[i].y + mino.off.y][mino.pos[j].x + mino.off.x-1] > 0) {
-                result |= 2;
-            }
-            if ((mino.pos[i].x + mino.off.x)+1 > COLS-1 || int_board[mino.pos[i].y+mino.off.y][(mino.pos[j].x + mino.off.x)+1] > 0) {
-//                printf("collision: %d\n", 2);
-                result |= 4;
-            }
-        }
-    }
-
-
-    
-    return result;
-}
-
-void _check_mino_colission(u8 dir) {
+void check_mino_colission(u8 dir) {
     for (i32 i = 0; i < 4; i++) {
         while (mino.pos[i].x+mino.off.x < 0) {
             mino.off.x++;
@@ -210,47 +186,32 @@ int rotate_mino(u8 dir) {
         }
     }
 
-    Tetromino temp_mino = {0};
-//    int check = 0;
+    Tetromino tmp_mino = {0};
     size_t cnt = 0;
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
             if (arr[i][j] == 1) {
-                temp_mino.pos[cnt].x = j;
-                temp_mino.pos[cnt].y = i; 
+                tmp_mino.pos[cnt].x = j;
+                tmp_mino.pos[cnt].y = i; 
                 cnt++;
             }
         }
     }
     for (i32 i = 0; i < 4; i++) {
-        if (int_board[temp_mino.pos[i].y + mino.off.y][temp_mino.pos[i].x + mino.off.x]) {
+        if (int_board[tmp_mino.pos[i].y + mino.off.y][tmp_mino.pos[i].x + mino.off.x]) {
             return 1;
         }
     }
     for (i32 i = 0; i < 4; i++) {
-        mino.pos[i].x = temp_mino.pos[i].x;
-        mino.pos[i].y = temp_mino.pos[i].y;
+        mino.pos[i].x = tmp_mino.pos[i].x;
+        mino.pos[i].y = tmp_mino.pos[i].y;
     }
-
-//  if (check == 1) {
-//      size_t cnt = 0;
-//      for (size_t i = 0; i < rows; i++) {
-//          for (size_t j = 0; j < cols; j++) {
-//              if (arr[i][j] == 1) {
-//                  mino.pos[cnt].x = j;
-//                  mino.pos[cnt].y = i; 
-//                  cnt++;
-//              }
-//          }
-//      }
-//  }
 
     return 0;
 }
 
 int clear_lines() {
     i8 line = 0;
-
     for (i8 i = ROWS-1; i >= 0; i--) {
         for (i8 j = 0; j < COLS; j++) {
             if (int_board[i][j] < 1) {
@@ -271,20 +232,20 @@ int clear_lines() {
             }
         }
     }
-
     return 0;
 }
 
 void game_input(SDL_Event event) {
+    const u8 *state = SDL_GetKeyboardState(NULL);
     if (event.type == SDL_EVENT_KEY_DOWN) {
         if (!pause) {
             if (event.key.keysym.sym == SDLK_z) {
                 rotate_mino(2);
-                _check_mino_colission(0);
+                check_mino_colission(0);
             }
             if (event.key.keysym.sym == SDLK_x || event.key.keysym.sym == SDLK_UP) {
                 rotate_mino(1);
-                _check_mino_colission(0);
+                check_mino_colission(0);
             }
             if (event.key.keysym.sym == SDLK_UP) {
                 
@@ -292,23 +253,20 @@ void game_input(SDL_Event event) {
             if (event.key.keysym.sym == SDLK_DOWN) {
 
             }
-            u32 rot = check_mino_colission();
-            printf("rot: %u, %u, %u\n", rot&~1, rot&~2, rot&~4);
             if (event.key.keysym.sym == SDLK_LEFT) { //&& ((rot &1) == 0 && (rot&4) == 0)) {
                 mino.off.x--;
-                _check_mino_colission(1);
+                check_mino_colission(1);
             }
             if (event.key.keysym.sym == SDLK_RIGHT) {// && ((rot &2) == 0 && (rot&4) == 0)) {
                 mino.off.x++;
-                _check_mino_colission(2);
+                check_mino_colission(2);
             }
         }
         if (event.key.keysym.sym == SDLK_SPACE) {
-            if (!pause) {
-                pause = true;
-            } else {
-                pause = false;
-            }
+            hard_drop();
+        }
+        if (event.key.keysym.sym == SDLK_p) {
+            pause = !pause;
         }
     } else if(event.type == SDL_EVENT_KEY_UP) {
 
@@ -318,6 +276,44 @@ void game_input(SDL_Event event) {
 
 void update_board() {
     clear_lines();
+}
+
+void hard_drop() {
+    i16 hard_off = 0;
+    i8 check = 0;
+    while (true) {
+        for (i32 i = 0; i < 4; i++) {
+            if (mino.pos[i].y + hard_off < ROWS-1 && int_board[mino.pos[i].y+hard_off+1][mino.pos[i].x+mino.off.x] < 1) {
+                check++;
+            } else {
+                check = 0;
+            }
+        }
+        if (check == 4) {
+            check = 0;
+            hard_off++;
+        } else {
+            break;
+        }
+    }
+    mino.off.y = hard_off;
+    place_mino();
+
+//  i32 check = 0;
+//  i32 drop_off = 0;
+//  while (!check) {
+//      for (i32 i = 0; i < 4; i++) {
+//          printf("%d\n", mino.pos[i].y+drop_off);
+//          if (/*int_board[(mino.pos[i].y + drop_off)][mino.pos[i].x + mino.off.x] > 0 ||*/ mino.pos[i].y + drop_off+1 >= ROWS-1) {
+//              mino.off.y = drop_off;
+//              place_mino(); 
+//              check = 1;
+//              break;
+//          } else {
+//              drop_off++;
+//          }
+//      }
+//  }
 }
 
 void render_board(SDL_Renderer *renderer) {
@@ -341,50 +337,58 @@ void render_board(SDL_Renderer *renderer) {
                     .y = board.y + i * CELL_SIZE,
                     .w = CELL_SIZE,
                     .h = CELL_SIZE};
-
                 SDL_RenderFillRect(renderer, &cell);
                 SDL_RenderRect(renderer, &cell);
             }
         }
     }
-
 }
 
 void render_mino_prev(SDL_Renderer *renderer) {
-//  i32 max_pos = 0;
-//  i32 min_pos = INT8_MAX;
-
-//  for (i32 i = 0; i < 4; i++) {
-//      if (mino.pos[i].x+mino.off.x <= min_pos) {
-//          min_pos = mino.pos[i].x + mino.off.x;
-//      } 
-//      if (mino.pos[i].x+mino.off.x >= max_pos) {
-//          max_pos = mino.pos[i].x + mino.off.x;
-//      } 
-//  }
-//  i32 prev_off = ROWS;
-
-// FIRST VER
-//  i32 prev_off = ROWS;
-
-//  for (i32 i = 0; i < 4; i++) {
-//      while(mino.pos[i].y + prev_off > ROWS-1 || int_board[mino.pos[i].y+prev_off][mino.pos[i].x+mino.off.x] > 0) {
-//          prev_off--;
+    i16 prev_off = 0;
+    i8 check = 0;
+//  while (check < 4) {
+//      for (i32 i = 0; i < 4; i++) {
+//          if (mino.pos[i].y + prev_off >= ROWS || int_board[mino.pos[i].y+prev_off][mino.pos[i].x+mino.off.x] > 0) {
+//              prev_off--;
+//              check = 0;
+//          } else {
+//              check++;
+//          }
 //      }
 //  }
 
-    i32 prev_off = 0;
-
-    for (i32 i = 0; i < 4; i++) {
-        while (mino.pos[i].y + prev_off < ROWS || int_board[mino.pos[i].y+prev_off][mino.pos[i].x+mino.off.x] < 1) {
+    while (true) {
+        for (i32 i = 0; i < 4; i++) {
+            if (mino.pos[i].y + prev_off < ROWS-1 && int_board[mino.pos[i].y+prev_off+1][mino.pos[i].x+mino.off.x] < 1) {
+                check++;
+            } else {
+                check = 0;
+            }
+        }
+        if (check == 4) {
+            check = 0;
             prev_off++;
+        } else {
+            break;
         }
     }
-
-
+//  while (check < 4) {
+//      for (i32 i = 0; i < 4; i++) {
+//          if (mino.pos[i].y + prev_off < ROWS-1) {
+//              prev_off++;
+//              if (mino.pos[i].y + prev_off >= ROWS || int_board[mino.pos[i].y+prev_off][mino.pos[i].x+mino.off.x] > 0) {
+//                  prev_off--;
+//                  check = 0;
+//              }
+//          } else {
+//              check++;
+//          }
+//      }
+//  }
     for (i32 i = 0; i < 4; i++) {
         SDL_FRect cell = {
-            .x = board.x + (mino.off.x+mino.pos[i].x) * CELL_SIZE,
+            .x = board.x + (mino.pos[i].x + mino.off.x) * CELL_SIZE,
             .y = board.y + (mino.pos[i].y + prev_off) * CELL_SIZE,
             .w = CELL_SIZE,
             .h = CELL_SIZE,
@@ -398,7 +402,7 @@ void render_bag_prev(SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
     SDL_RenderRect(renderer, &mino_prev);
 
-    for(size_t i = 0; i < 4; i++) {
+    for (size_t i = 0; i < 4; i++) {
         SDL_FRect cell = {
             .x = shapes[bag[bag_pos+1]].pos[i].x * CELL_SIZE + mino_prev.x,              
             .y = (shapes[bag[bag_pos+1]].pos[i].y) * CELL_SIZE + mino_prev.y,
@@ -412,7 +416,6 @@ void render_bag_prev(SDL_Renderer *renderer) {
         SDL_RenderFillRect(renderer, &cell);
         SDL_RenderRect(renderer, &cell);
     }
-
 }
 
 void update_tetromino(u64 frames) {
@@ -446,18 +449,15 @@ void render_tetromino(SDL_Renderer *renderer) {
                            mino.color.g, 
                            mino.color.b, 
                            mino.color.a);
-    
     for (size_t i = 0; i < 4; i++) {
         SDL_FRect cell = {
             .x = (mino.pos[i].x + mino.off.x) * CELL_SIZE + board.x,
             .y = (mino.pos[i].y + mino.off.y) * CELL_SIZE + board.y,
             .w = CELL_SIZE,
             .h = CELL_SIZE};
-
         SDL_RenderFillRect(renderer, &cell);
         SDL_RenderRect(renderer, &cell);
     }
-
 }
 
 void board_info() {
@@ -476,7 +476,6 @@ void board_info() {
         printf("\n");
     }
     printf("\n");
-
 }
 
 void mino_info() {
@@ -489,7 +488,6 @@ void mino_info() {
         printf("%d, %d\t%d, %d\n", mino.pos[i].x, mino.pos[i].y, mino.off.x, mino.off.y);
     }
     printf("\n");
-
 }
 
 void bag_info() {

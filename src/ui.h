@@ -21,7 +21,7 @@ typedef enum {
 } mouse_state;
 
 typedef struct {
-    vecf2d_t       pos;
+    vec2f       pos;
     mouse_button_t button;
     mouse_state    state;
 } Mouse;
