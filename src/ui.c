@@ -12,7 +12,7 @@ Box *new_box(f32 x, f32 y, f32 width, f32 height, u32 flags) {
             .w = width,
             .h = height
         },
-        .color = RED, 
+        .color = COLOR_RED, 
     };
     box_arr[box_arr_size] = result;
     box_arr_size++;

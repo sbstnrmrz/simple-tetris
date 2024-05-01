@@ -24,7 +24,7 @@ void init_sdl(const char *title, int win_width, int win_height, bool fullscreen)
         exit(1);
     }
 
-    engine.renderer = SDL_CreateRenderer(engine.window, NULL, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    engine.renderer = SDL_CreateRenderer(engine.window, NULL, SDL_RENDERER_PRESENTVSYNC);
     if (engine.renderer == NULL) {
         fprintf(stderr, "Failed to create SDL_Renderer. SDL_Error: %s\n", SDL_GetError());
         exit(1);

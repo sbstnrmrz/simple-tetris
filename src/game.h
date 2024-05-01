@@ -19,9 +19,9 @@ typedef enum {
 } shape;
 
 typedef struct {
-    vec2   pos[4];
-    vec2   off;
-    shape     shape;
+    vec2      pos[4];
+    vec2      off;
+    shape     shape_type;
     SDL_Color color;
 } Tetromino;
 

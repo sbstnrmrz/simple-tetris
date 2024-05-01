@@ -32,28 +32,18 @@ const float level[30] = {800.0f,      // LEVEL 0  FRAMES 48
                          33.333333f,  // LEVEL 28 FRAMES 2
                          16.666666f}; // LEVEL 29 FRAMES 1
 
-/*
-const Tetromino shapes[7] = {{{ {0,1}, {1,1}, {2,1}, {3,1} }, {0,0}, I, CYAN},
-                              {1,1, 2,1, 1,2, 2,2, 0,0, O, YELLOW},
-                              {1,0, 0,1, 1,1, 2,1, 0,0, T, PURPLE},
-                              {1,0, 2,0, 0,1, 1,1, 0,0, S, GREEN},
-                              {0,0, 1,0, 1,1, 2,1, 0,0, Z, RED},
-                              {1,0, 1,1, 0,2, 1,2, 0,0, J, BLUE},
-                              {0,0, 0,1, 0,2, 1,2, 0,0, L, ORANGE}};
-*/
-
-const Tetromino shapes[7] = {{{ {0,1}, {1,1}, {2,1}, {3,1} }, {0,0}, I, CYAN},
-                              {1,1, 2,1, 1,2, 2,2, 0,0, O, YELLOW},
-                              {1,0, 0,1, 1,1, 2,1, 0,0, T, PURPLE},
-                              {1,0, 2,0, 0,1, 1,1, 0,0, S, GREEN},
-                              {0,0, 1,0, 1,1, 2,1, 0,0, Z, RED},
-                              {0,1, 0,2, 1,2, 2,2, 0,0, J, BLUE},
-                              {2,1, 0,2, 1,2, 2,2, 0,0, L, ORANGE}};
+const Tetromino shapes[7] = {{{ {0,1}, {1,1}, {2,1}, {3,1} }, {0,0}, I, COLOR_CYAN},
+                              {1,1, 2,1, 1,2, 2,2, 0,0, O, COLOR_YELLOW},
+                              {1,0, 0,1, 1,1, 2,1, 0,0, T, COLOR_PURPLE},
+                              {1,0, 2,0, 0,1, 1,1, 0,0, S, COLOR_GREEN},
+                              {0,0, 1,0, 1,1, 2,1, 0,0, Z, COLOR_RED},
+                              {0,1, 0,2, 1,2, 2,2, 0,0, J, COLOR_BLUE},
+                              {2,1, 0,2, 1,2, 2,2, 0,0, L, COLOR_ORANGE}};
 
 char      char_board[ROWS][COLS] = {0};
 u8        int_board[ROWS][COLS] = {0};
 Tetromino mino = {0};
-u8        bag[7] = {0};
+u8        bag[14] = {0};
 size_t    bag_pos = 0;
 bool mino_exist = false;
 bool bag_empty = true;
@@ -83,7 +73,6 @@ void reset_board() {
             int_board[i][j] = 0;
         }
     }
-
 }
 
 Tetromino gen_mino() {
@@ -105,7 +94,6 @@ Tetromino gen_mino() {
         }
         bag_empty = false;
     }
-
     return shapes[bag[bag_pos]];
 }
 
@@ -128,7 +116,6 @@ void check_mino_colission(u8 dir) {
             }
         }
     }
-
 }
 
 bool check_place_mino() {
@@ -137,13 +124,12 @@ bool check_place_mino() {
             return true;
         }
     }
-
     return false;
 }
 
 void place_mino() {
     for (size_t i = 0; i < 4; i++) {
-        int_board[mino.pos[i].y+mino.off.y][mino.pos[i].x+mino.off.x] = mino.shape;
+        int_board[mino.pos[i].y+mino.off.y][mino.pos[i].x+mino.off.x] = mino.shape_type;
     }
     bag_pos++;
     mino_exist = false;
@@ -154,7 +140,7 @@ int rotate_mino(u8 dir) {
     u8 rows = 0;
     u8 cols = 0;
 
-    if (mino.shape > 2) {
+    if (mino.shape_type > 2) {
         rows = cols = 3;
     } else {
         rows = cols = 4;
@@ -251,13 +237,14 @@ void game_input(SDL_Event event) {
                 
             }
             if (event.key.keysym.sym == SDLK_DOWN) {
+                
 
             }
-            if (event.key.keysym.sym == SDLK_LEFT) { //&& ((rot &1) == 0 && (rot&4) == 0)) {
+            if (event.key.keysym.sym == SDLK_LEFT) {
                 mino.off.x--;
                 check_mino_colission(1);
             }
-            if (event.key.keysym.sym == SDLK_RIGHT) {// && ((rot &2) == 0 && (rot&4) == 0)) {
+            if (event.key.keysym.sym == SDLK_RIGHT) {
                 mino.off.x++;
                 check_mino_colission(2);
             }
@@ -271,7 +258,6 @@ void game_input(SDL_Event event) {
     } else if(event.type == SDL_EVENT_KEY_UP) {
 
     }
-
 }
 
 void update_board() {
@@ -279,11 +265,11 @@ void update_board() {
 }
 
 void hard_drop() {
-    i16 hard_off = 0;
+    i16 prev_off = mino.off.y;
     i8 check = 0;
     while (true) {
         for (i32 i = 0; i < 4; i++) {
-            if (mino.pos[i].y + hard_off < ROWS-1 && int_board[mino.pos[i].y+hard_off+1][mino.pos[i].x+mino.off.x] < 1) {
+            if (mino.pos[i].y + prev_off < ROWS-1 && int_board[mino.pos[i].y+prev_off+1][mino.pos[i].x+mino.off.x] < 1) {
                 check++;
             } else {
                 check = 0;
@@ -291,40 +277,24 @@ void hard_drop() {
         }
         if (check == 4) {
             check = 0;
-            hard_off++;
+            prev_off++;
         } else {
             break;
         }
     }
-    mino.off.y = hard_off;
+    mino.off.y = prev_off;
     place_mino();
-
-//  i32 check = 0;
-//  i32 drop_off = 0;
-//  while (!check) {
-//      for (i32 i = 0; i < 4; i++) {
-//          printf("%d\n", mino.pos[i].y+drop_off);
-//          if (/*int_board[(mino.pos[i].y + drop_off)][mino.pos[i].x + mino.off.x] > 0 ||*/ mino.pos[i].y + drop_off+1 >= ROWS-1) {
-//              mino.off.y = drop_off;
-//              place_mino(); 
-//              check = 1;
-//              break;
-//          } else {
-//              drop_off++;
-//          }
-//      }
-//  }
 }
 
 void render_board(SDL_Renderer *renderer) {
-    SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+    SDL_SetRenderDrawColor(renderer, COLOR_WHITE.r, COLOR_WHITE.g, COLOR_WHITE.b, COLOR_WHITE.a);
     SDL_RenderRect(renderer, &board);
     for (size_t i = 0; i < ROWS; i++) {
         for (size_t j = 0; j < COLS; j++) {
             //TODO
             if (int_board[i][j] > 0) {
                 for (size_t k = 0; k < 7; k++) {
-                    if (int_board[i][j] == shapes[k].shape) {
+                    if (int_board[i][j] == shapes[k].shape_type) {
                         SDL_SetRenderDrawColor(renderer, 
                                                shapes[k].color.r, 
                                                shapes[k].color.g, 
@@ -345,19 +315,8 @@ void render_board(SDL_Renderer *renderer) {
 }
 
 void render_mino_prev(SDL_Renderer *renderer) {
-    i16 prev_off = 0;
+    i16 prev_off = mino.off.y;
     i8 check = 0;
-//  while (check < 4) {
-//      for (i32 i = 0; i < 4; i++) {
-//          if (mino.pos[i].y + prev_off >= ROWS || int_board[mino.pos[i].y+prev_off][mino.pos[i].x+mino.off.x] > 0) {
-//              prev_off--;
-//              check = 0;
-//          } else {
-//              check++;
-//          }
-//      }
-//  }
-
     while (true) {
         for (i32 i = 0; i < 4; i++) {
             if (mino.pos[i].y + prev_off < ROWS-1 && int_board[mino.pos[i].y+prev_off+1][mino.pos[i].x+mino.off.x] < 1) {
@@ -373,19 +332,7 @@ void render_mino_prev(SDL_Renderer *renderer) {
             break;
         }
     }
-//  while (check < 4) {
-//      for (i32 i = 0; i < 4; i++) {
-//          if (mino.pos[i].y + prev_off < ROWS-1) {
-//              prev_off++;
-//              if (mino.pos[i].y + prev_off >= ROWS || int_board[mino.pos[i].y+prev_off][mino.pos[i].x+mino.off.x] > 0) {
-//                  prev_off--;
-//                  check = 0;
-//              }
-//          } else {
-//              check++;
-//          }
-//      }
-//  }
+
     for (i32 i = 0; i < 4; i++) {
         SDL_FRect cell = {
             .x = board.x + (mino.pos[i].x + mino.off.x) * CELL_SIZE,
@@ -399,9 +346,8 @@ void render_mino_prev(SDL_Renderer *renderer) {
 }
 
 void render_bag_prev(SDL_Renderer *renderer) {
-    SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+    SDL_SetRenderDrawColor(renderer, COLOR_WHITE.r, COLOR_WHITE.g, COLOR_WHITE.b, COLOR_WHITE.a);
     SDL_RenderRect(renderer, &mino_prev);
-
     for (size_t i = 0; i < 4; i++) {
         SDL_FRect cell = {
             .x = shapes[bag[bag_pos+1]].pos[i].x * CELL_SIZE + mino_prev.x,              
@@ -467,12 +413,6 @@ void board_info() {
         for (size_t j = 0; j < COLS; j++) {
             printf("%d|", int_board[i][j]);    
         }
-/*
-        printf("\t|");
-        for (size_t k = 0; k < COLS; k++) {
-            printf("%d|", intBoard[i][k]);
-        }
-*/
         printf("\n");
     }
     printf("\n");
@@ -480,7 +420,7 @@ void board_info() {
 
 void mino_info() {
     printf("[TETROMINO INFO]\n\n"); 
-    printf("Shape: %d\n", mino.shape);
+    printf("Shape: %d\n", mino.shape_type);
     printf("X : Y\n");
     printf("%d, %d\toff\n", mino.off.x, mino.off.y);
 
