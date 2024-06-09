@@ -10,10 +10,9 @@
 #include <SDL3/SDL.h>
 
 #define PI atan2f(1, 1) * 4
-
 #define CELL_SIZE 32
-#define WIN_WIDTH  1280//10 * CELL_SIZE
-#define WIN_HEIGHT 720//20 * CELL_SIZE
+#define WIN_W 1280
+#define WIN_H 720
 
 #define COLOR_RED    (SDL_Color) {255, 0, 0, 255}
 #define COLOR_GREEN  (SDL_Color) {0, 255, 0, 255}

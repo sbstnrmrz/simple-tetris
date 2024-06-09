@@ -30,6 +30,7 @@ void reset_board();
 void game_input(SDL_Event event);
 Tetromino gen_mino();
 void fill_bag();
+void update_game(SDL_Renderer *renderer, SDL_Event event, u64 frames);
 void check_mino_colission(u8 dir);
 bool check_place_mino();
 int check_rotation();

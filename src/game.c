@@ -50,14 +50,14 @@ bool bag_empty = true;
 bool pause = false;
 
 SDL_FRect board = {
-    .x = (f32)WIN_WIDTH/2 - (f32)(BOARD_WIDTH)/2,               
-    .y = (f32)WIN_HEIGHT/2 - (f32)(BOARD_HEIGHT)/2,
+    .x = (f32)WIN_W/2 - (f32)(BOARD_WIDTH)/2,               
+    .y = (f32)WIN_H/2 - (f32)(BOARD_HEIGHT)/2,
     .w = BOARD_WIDTH,
     .h = BOARD_HEIGHT};
 
 SDL_FRect mino_prev = {
-    .x = (f32)WIN_WIDTH / 2 + (f32)WIN_WIDTH / 8,               
-    .y = (f32)WIN_HEIGHT / 2 - (f32)(BOARD_HEIGHT) / 2,
+    .x = (f32)WIN_W / 2 + (f32)WIN_W / 8,               
+    .y = (f32)WIN_H / 2 - (f32)(BOARD_HEIGHT) / 2,
     .w = CELL_SIZE * 4,
     .h = CELL_SIZE * 4};
 
@@ -65,6 +65,17 @@ int init_game() {
     reset_board();
 
     return 0;
+}
+
+void update_game(SDL_Renderer *renderer, SDL_Event event, u64 frames) {
+    game_input(event);
+    update_board();
+    update_tetromino(frames);
+    render_board(renderer);
+    render_bag_prev(renderer);
+    render_tetromino(renderer);
+    render_mino_prev(renderer);
+    render_board(renderer);
 }
 
 void reset_board() {
@@ -437,12 +448,10 @@ void bag_info() {
         printf("BAG: %d\n", bag[i]);    
     }
     printf("BAGPOS: %zu\n\n", bag_pos);
-
 }
 
 void swap(int *a, int *b) {
     int temp = *a;
     *a = *b;
     *b = temp;
-
 }

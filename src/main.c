@@ -8,75 +8,71 @@ struct {
     Mouse mouse;
     SDL_Window *window;
     SDL_Renderer *renderer;
-} engine;
+} sdl;
 
-void init_sdl(const char *title, int win_width, int win_height, bool fullscreen) {
-    engine.running = false;
+void init_sdl(const char *win_title, const int win_w, const int win_h, bool fullscreen) {
+    sdl.running = false;
+    SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 
     if (SDL_Init(SDL_INIT_EVENTS) < 0) {
         fprintf(stderr, "Failed to initialize SDL. SDL_Error: %s\n", SDL_GetError());
         exit(1);
     }
+    printf("Events initialized\n");
 
-    engine.window = SDL_CreateWindow(title, win_width, win_height, fullscreen);
-    if (engine.window == NULL) {
+    sdl.window = SDL_CreateWindow(win_title, win_w, win_h, 0);
+    if (sdl.window == NULL) {
         fprintf(stderr, "Failed to create SDL_Window. SDL_Error: %s\n", SDL_GetError());
         exit(1);
     }
+    printf("Window created\n");
 
-    engine.renderer = SDL_CreateRenderer(engine.window, NULL, SDL_RENDERER_PRESENTVSYNC);
-    if (engine.renderer == NULL) {
+    sdl.renderer = SDL_CreateRenderer(sdl.window, NULL);
+    SDL_SetRenderVSync(sdl.renderer, 1);
+    if (sdl.renderer == NULL) {
         fprintf(stderr, "Failed to create SDL_Renderer. SDL_Error: %s\n", SDL_GetError());
         exit(1);
     }
+    printf("Renderer created\n");
  
-    engine.running = true;
+    sdl.running = true;
 }
 
-void handle_events() {
+void update() {
     SDL_Event event;
     SDL_PollEvent(&event);
 
     if (event.type == SDL_EVENT_QUIT) {
-        engine.running = false;
+        sdl.running = false;
     }
-    mouse_input(event, &engine.mouse);
-    game_input(event);
 
-}
+    SDL_SetRenderDrawColor(sdl.renderer, 0, 0, 0, 255);
+    SDL_RenderClear(sdl.renderer);
 
-void update() {
-    update_tetromino(engine.frames);
-    update_board();
+    update_game(sdl.renderer, event, sdl.frames);
 
-    engine.frames++;
-//    printf("%llu\n", SDL_GetTicks64());  
+    SDL_RenderPresent(sdl.renderer);
+
+    sdl.frames++;
 }
 
 void render() {
-    SDL_SetRenderDrawColor(engine.renderer, 0, 0, 0, 255);
-    SDL_RenderClear(engine.renderer);
-
-    render_board(engine.renderer);
-    render_bag_prev(engine.renderer);
-    render_tetromino(engine.renderer);
-    render_mino_prev(engine.renderer);
-
-    SDL_RenderPresent(engine.renderer);
-    
+    render_board(sdl.renderer);
+    render_bag_prev(sdl.renderer);
+    render_tetromino(sdl.renderer);
+    render_mino_prev(sdl.renderer);
 }
 
 void debug() {
     board_info();
     mino_info();
     bag_info();
-    mouse_info(engine.mouse);
-
+    mouse_info(sdl.mouse);
 }
 
-void clean() {
-    SDL_DestroyRenderer(engine.renderer);
-    SDL_DestroyWindow(engine.window);
+void uninit_sdl() {
+    SDL_DestroyRenderer(sdl.renderer);
+    SDL_DestroyWindow(sdl.window);
 
     SDL_Quit();
 }
@@ -84,18 +80,16 @@ void clean() {
 int main(int argc, char *argv[]) {
     srand(time(NULL));
 
-    init_sdl("TETRIS", WIN_WIDTH, WIN_HEIGHT, false);
+    init_sdl("SIMPLE TETRIS", WIN_W, WIN_H, false);
     init_game();
-    engine.frames = 0;
+    sdl.frames = 0;
 
-    while(engine.running) {
-        handle_events();
+    while(sdl.running) {
         update();
-        render();
  //       debug(); 
     }
 
-    clean();
+    uninit_sdl();
 
     return 0;
 }
