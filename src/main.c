@@ -1,3 +1,5 @@
+#include "SDL3/SDL_blendmode.h"
+#include "SDL3/SDL_render.h"
 #include "defs.h"
 #include "game.h"
 #include "ui.h"
@@ -34,6 +36,8 @@ void init_sdl(const char *win_title, const int win_w, const int win_h, bool full
         exit(1);
     }
     printf("Renderer created\n");
+
+    SDL_SetRenderDrawBlendMode(sdl.renderer, SDL_BLENDMODE_BLEND);
  
     sdl.running = true;
 }

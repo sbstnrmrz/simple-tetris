@@ -108,6 +108,54 @@ Tetromino gen_mino() {
     return shapes[bag[bag_pos]];
 }
 
+Tetromino _gen_mino() {
+    static bool first_half = false;
+    static bool second_half = false;
+    if (bag_empty) {
+        size_t cnt = 0;
+        for (size_t i = 0; i < 2; i++) {
+            while (cnt < 7) {
+                bool repeat = false; 
+                bag[cnt] = rand() % 7;
+                for (size_t j = 0; j < 7; j++) {
+                    if (bag[cnt] == bag[i+j] && j != cnt) {
+                        repeat = true;
+                    }
+                } 
+                if (repeat) {
+                    continue;
+                } else {
+                    cnt++;
+                }
+            }
+
+        }
+
+        bag_empty = false;
+    }
+
+    if (!second_half) {
+        size_t cnt = 0;
+        while (cnt < 7) {
+            bool repeat = false; 
+            bag[cnt] = rand() % 7;
+            for (size_t j = 0; j < 7; j++) {
+                if (bag[cnt] == bag[j] && j != cnt) {
+                    repeat = true;
+                }
+            } 
+            if (repeat) {
+                continue;
+            } else {
+                cnt++;
+            }
+        }
+
+        bag_empty = false;
+    }
+    return shapes[bag[bag_pos]];
+}
+
 void check_mino_colission(u8 dir) {
     for (i32 i = 0; i < 4; i++) {
         while (mino.pos[i].x+mino.off.x < 0) {
@@ -298,7 +346,8 @@ void hard_drop() {
 }
 
 void render_board(SDL_Renderer *renderer) {
-    SDL_SetRenderDrawColor(renderer, COLOR_WHITE.r, COLOR_WHITE.g, COLOR_WHITE.b, COLOR_WHITE.a);
+    SDL_SetRenderDrawColor(renderer, COLOR_WHITE.r, COLOR_WHITE.g, 
+                           COLOR_WHITE.b, COLOR_WHITE.a);
     SDL_RenderRect(renderer, &board);
     for (size_t i = 0; i < ROWS; i++) {
         for (size_t j = 0; j < COLS; j++) {
@@ -306,10 +355,8 @@ void render_board(SDL_Renderer *renderer) {
             if (int_board[i][j] > 0) {
                 for (size_t k = 0; k < 7; k++) {
                     if (int_board[i][j] == shapes[k].shape_type) {
-                        SDL_SetRenderDrawColor(renderer, 
-                                               shapes[k].color.r, 
-                                               shapes[k].color.g, 
-                                               shapes[k].color.b, 
+                        SDL_SetRenderDrawColor(renderer, shapes[k].color.r, 
+                                               shapes[k].color.g, shapes[k].color.b, 
                                                shapes[k].color.a);
                     }
                 }
@@ -327,7 +374,7 @@ void render_board(SDL_Renderer *renderer) {
 
 void render_mino_prev(SDL_Renderer *renderer) {
     i16 prev_off = mino.off.y;
-    i8 check = 0;
+    u8 check = 0;
     while (true) {
         for (i32 i = 0; i < 4; i++) {
             if (mino.pos[i].y + prev_off < ROWS-1 && int_board[mino.pos[i].y+prev_off+1][mino.pos[i].x+mino.off.x] < 1) {
@@ -351,12 +398,13 @@ void render_mino_prev(SDL_Renderer *renderer) {
             .w = CELL_SIZE,
             .h = CELL_SIZE,
         }; 
-        SDL_SetRenderDrawColor(renderer, mino.color.r, mino.color.g, mino.color.b, mino.color.a);
-        SDL_RenderRect(renderer, &cell);
+
+        SDL_SetRenderDrawColor(renderer, mino.color.r, mino.color.g, mino.color.b, 50);
+        SDL_RenderFillRect(renderer, &cell);
     }
 }
 
-void render_bag_prev(SDL_Renderer *renderer) {
+void _render_bag_prev(SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, COLOR_WHITE.r, COLOR_WHITE.g, COLOR_WHITE.b, COLOR_WHITE.a);
     SDL_RenderRect(renderer, &mino_prev);
     for (size_t i = 0; i < 4; i++) {
@@ -372,6 +420,27 @@ void render_bag_prev(SDL_Renderer *renderer) {
                                shapes[bag[bag_pos+1]].color.a);
         SDL_RenderFillRect(renderer, &cell);
         SDL_RenderRect(renderer, &cell);
+    }
+}
+
+void render_bag_prev(SDL_Renderer *renderer) {
+    SDL_SetRenderDrawColor(renderer, COLOR_WHITE.r, COLOR_WHITE.g, COLOR_WHITE.b, COLOR_WHITE.a);
+//  SDL_RenderRect(renderer, &mino_prev);
+    for (size_t i = 0; i < 4; i++) {
+        for (size_t j = 0; j < 4; j++) {
+            SDL_FRect cell = {
+                .x = shapes[bag[bag_pos+i+1]].pos[j].x * CELL_SIZE + mino_prev.x + 32,              
+                .y = (shapes[bag[bag_pos+i+1]].pos[j].y) * CELL_SIZE + mino_prev.y + i*5*CELL_SIZE,
+                .w = CELL_SIZE,
+                .h = CELL_SIZE};
+            SDL_SetRenderDrawColor(renderer, 
+                                   shapes[bag[bag_pos+i+1]].color.r,
+                                   shapes[bag[bag_pos+i+1]].color.g,  
+                                   shapes[bag[bag_pos+i+1]].color.b,  
+                                   shapes[bag[bag_pos+i+1]].color.a);
+            SDL_RenderFillRect(renderer, &cell);
+            SDL_RenderRect(renderer, &cell);
+        }
     }
 }
 
